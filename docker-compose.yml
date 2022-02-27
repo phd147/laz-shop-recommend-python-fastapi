@@ -1,0 +1,22 @@
+version: "3.9"
+
+
+services:
+
+  recommend_backend:
+    build:
+      context: .
+    container_name: laz_recommend_fast_api
+    tty: true
+    ports:
+      - "8000:80"
+#    volumes:
+#      - ../:/code
+    networks:
+      - laz_shop
+
+
+networks:
+  laz_shop:
+    external: true
+    name: phd_backend
