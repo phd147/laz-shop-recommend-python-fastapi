@@ -178,11 +178,17 @@ def get_recommend(stars, user_id):
                 if predict_star >= 3:
                     suggest_item.append({
                         'id': item,
-                        'predictRating': predict_star
+                        'predict_rating': predict_star
                     })
 
 
     print(suggest_item)
+
+    suggest_item = sorted(suggest_item, key=lambda x: x['predict_rating'], reverse=True)
+
+
+    print('final highest predict rating suggest item', suggest_item)
+
     return suggest_item
 
 
@@ -198,31 +204,6 @@ def get_items(db: Session = Depends(get_db), user_id: int = 5):
     reactions = db.query(Reaction).all()
 
     matrix = [[reaction.user_id, reaction.item_id, reaction.star] for reaction in reactions]
-
-    # stars = [  # user, item, star
-    #     [0, 0, 5],
-    #     [0, 1, 4],
-    #     [0, 3, 2],
-    #     [0, 4, 2],
-    #     [1, 0, 5],
-    #     [1, 2, 4],
-    #     [1, 3, 2],
-    #     [1, 4, 0],
-    #     [2, 0, 2],
-    #     [2, 2, 1],
-    #     [2, 3, 3],
-    #     [2, 4, 4],
-    #     [3, 0, 0],
-    #     [3, 1, 0],
-    #     [3, 3, 4],
-    #     [4, 0, 1],
-    #     [4, 3, 4],
-    #     [5, 1, 2],
-    #     [5, 2, 1],
-    #     [6, 2, 1],
-    #     [6, 3, 4],
-    #     [6, 4, 5],
-    # ]
 
     print(matrix)
     print(type(reactions[0]))
