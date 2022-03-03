@@ -76,7 +76,7 @@ def get_recommend(stars, user_id):
     if user_id not in user_ratings:
         return []
 
-    avg_plus = [{'user_id': user, 'avg_rating': 0.0} for user in user_ratings]
+    avg_plus = [{'user_id': user, 'avg_rating': 0.00} for user in user_ratings]
 
     # avg_plus = {}
 
@@ -90,7 +90,7 @@ def get_recommend(stars, user_id):
                 count += 1
                 sum += reaction[2]
         if count != 0:
-            avg_plus[i]['avg_rating'] = sum / count
+            avg_plus[i]['avg_rating'] = round(sum / count, 2)
 
     print('=======AVG RATING=======', avg_plus)
 
