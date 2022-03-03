@@ -1,5 +1,7 @@
 import copy
 
+import numpy as np
+
 from fastapi import APIRouter, Depends
 # import cosine_similarity from sklearn library
 from sklearn.metrics.pairwise import cosine_similarity
@@ -18,9 +20,9 @@ from ..dependecies.database import get_db
 router = APIRouter()
 
 
-def getNormalizedRating(normalizedMatrix, user_id, item_id):
+def getNormalizedRating(normalized_matrix, user_id, item_id):
     result = 0
-    for reaction in normalizedMatrix:
+    for reaction in normalized_matrix:
         if reaction[0] == user_id and reaction[1] == item_id:
             return reaction[2]
 
@@ -33,8 +35,7 @@ def getVectorOfUser(items, user_id, normalized_matrix):
         item_rating_vector_of_user.append(
             {'item_id': item, 'normalized_rating': getNormalizedRating(normalized_matrix, user_id, item)})
 
-    print('USER', user_id)
-    print(item_rating_vector_of_user)
+    print(f'============Vector of user: {user_id}============', item_rating_vector_of_user)
     return item_rating_vector_of_user
 
 
@@ -44,8 +45,7 @@ def getAllRatingItemOfUser(items, user_id, matrix):
         item_rating_vector_of_user.append(
             {'item_id': item, 'rating': getNormalizedRating(matrix, user_id, item)})
 
-    print('USER RATING FOR ALL ITEM', user_id)
-    print(item_rating_vector_of_user)
+    print(f'ALL RATING FOR ITEM OF USER {user_id}', item_rating_vector_of_user)
     return item_rating_vector_of_user
 
 
@@ -92,7 +92,7 @@ def get_recommend(stars, user_id):
         if count != 0:
             avg_plus[i]['avg_rating'] = sum / count
 
-    print('avg rating', avg_plus)
+    print('=======AVG RATING=======', avg_plus)
 
     # normalized utility matrix
     for i in range(len(stars)):
@@ -103,9 +103,8 @@ def get_recommend(stars, user_id):
             if user_avg_rating['user_id'] == stars[i][0]:
                 normalized_matrix[i][2] -= user_avg_rating['avg_rating']
 
-    print('matrix', stars)
-    print('normalized matrix', normalized_matrix)
-
+    print('========MATRIX========', np.array(stars))
+    print('========NORMALIZED MATRIX===========', np.array(normalized_matrix))
 
     # init similarity matrix
     similarity = []
@@ -123,7 +122,6 @@ def get_recommend(stars, user_id):
 
     print('item_rating_vector_of_user_suggest', item_rating_vector_of_user_suggest)
 
-
     for user_id in user_ratings:
         if user_id != user_suggest:
             user_suggest_vector = [i['normalized_rating'] for i in item_rating_vector_of_user_suggest]
@@ -138,8 +136,7 @@ def get_recommend(stars, user_id):
     similarity = sorted(similarity, key=lambda i: i['cosine'], reverse=True)
 
     similarity = similarity[:k]
-    print('similarity',similarity)
-
+    print('========SIMILARITY OF USER SUGGEST=========', similarity)
 
     suggest_item = []
 
@@ -155,10 +152,10 @@ def get_recommend(stars, user_id):
         return -1
 
     avg_rating_of_suggest_user = getAvgRatingOfUser(avg_plus, user_suggest)
-    print('avg_rating_of_suggest_user', avg_rating_of_suggest_user)
+    print('========AVG RATING OF USER SUGGEST=========', avg_rating_of_suggest_user)
 
     all_rating_of_user = getAllRatingItemOfUser(items, user_suggest, stars)
-    print('allRatingOfUser', all_rating_of_user)
+    print('=============ALL RATING OF USER SUGGEST===============', all_rating_of_user)
 
     for item in all_rating_of_user:
         if item['rating'] == 0:
@@ -167,7 +164,7 @@ def get_recommend(stars, user_id):
             denominator = 0
 
             for i in similarity:
-                print('top similar')
+
                 star = get_star(i['user_id'], item['item_id'], normalized_matrix)
                 if star != -1:
                     numerator += i['cosine'] * star
@@ -181,11 +178,9 @@ def get_recommend(stars, user_id):
                         'predict_rating': predict_star
                     })
 
-
     print(suggest_item)
 
     suggest_item = sorted(suggest_item, key=lambda x: x['predict_rating'], reverse=True)
-
 
     print('final highest predict rating suggest item', suggest_item)
 
