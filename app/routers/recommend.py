@@ -171,7 +171,7 @@ def get_recommend(stars, user_id):
                     denominator += abs(i['cosine'])
                     count += 1
             if denominator > 0:
-                predict_star = numerator / denominator + avg_rating_of_suggest_user
+                predict_star = round(numerator / denominator + avg_rating_of_suggest_user, 2)
                 if predict_star >= 3:
                     suggest_item.append({
                         'id': item,
